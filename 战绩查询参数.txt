@@ -1,0 +1,29 @@
+第1页
+areaId	1
+btNum	7
+code	H8hnf5d+i9Hw9+lL1uGD4urfOPKRGbct
+limit	7
+offset	0
+
+第2页
+areaId	1
+btNum	7
+code	H8hnf5d+i9Hw9+lL1uGD4urfOPKRGbct
+limit	7
+offset	7
+
+第3页
+areaId	1
+btNum	7
+code	H8hnf5d+i9Hw9+lL1uGD4urfOPKRGbct
+limit	7
+offset	14
+
+第4页
+areaId	1
+btNum	7
+code	H8hnf5d+i9Hw9+lL1uGD4urfOPKRGbct
+limit	7
+offset	21
+
+code=H8hnf5d%2Bi9Hw9%2BlL1uGD4urfOPKRGbct&areaId=1&offset=21&limit=7&btNum=7
