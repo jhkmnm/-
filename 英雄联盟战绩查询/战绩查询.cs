@@ -81,18 +81,33 @@ namespace 英雄联盟战绩查询
         private void InitDataGridCol()
         {
             dgvData.Columns.AddRange(new[] {
-                new DataGridViewTextBoxColumn() { Name = "colName", HeaderText = "游戏角色名", DataPropertyName = "Name", ReadOnly = true, Width = 100 },
+                new DataGridViewTextBoxColumn() { Name = "colSelected", HeaderText = "选择", DataPropertyName = "Selected", Width = 40 },
+                new DataGridViewTextBoxColumn() { Name = "colName", HeaderText = "游戏ID", DataPropertyName = "Name", ReadOnly = true, Width = 100 },
                 new DataGridViewTextBoxColumn() { Name = "colServer", HeaderText = "游戏大区", DataPropertyName = "Server", ReadOnly = true, Width = 100 },
+                new DataGridViewTextBoxColumn() { Name = "colShenLU", HeaderText = "当前胜率", DataPropertyName = "ShenLU", ReadOnly = true, Width = 100 },
+                new DataGridViewTextBoxColumn() { Name = "colDuanwei", HeaderText = "当前段位", DataPropertyName = "Duanwei", ReadOnly = true, Width = 100 },
                 new DataGridViewTextBoxColumn() { Name = "colWebUrl", HeaderText = "账号地址", DataPropertyName = "WebUrl", ReadOnly = true, Visible = false }
             });
 
-            for(int i=1;i<=count;i++)
+            for (int i = 1; i <= count; i++)
             {
                 dgvData.Columns.AddRange(new[] {
-                    new DataGridViewTextBoxColumn() { Name = "colTime"+i.ToString(), HeaderText = "时间" + i.ToString(), DataPropertyName = "Time", ReadOnly = true, Width = 120 },
-                    new DataGridViewTextBoxColumn() { Name = "colData"+i.ToString(), HeaderText = "战绩" + i.ToString(), DataPropertyName = "Data", ReadOnly = true, Width = 70 }
+                    new DataGridViewTextBoxColumn() { Name = "colData"+i.ToString(), HeaderText = "战绩" + i.ToString(), DataPropertyName = "Data", ReadOnly = true, Width = 120 }
                 });
             }
+
+            dgvData.Columns.AddRange(new[] {                    
+                    new DataGridViewTextBoxColumn() { Name = "colTime", HeaderText = "时间计时", DataPropertyName = "Time", ReadOnly = true, Width = 120 },
+                    new DataGridViewTextBoxColumn() { Name = "colBeizhu", HeaderText = "备注", DataPropertyName = "Beizhu", ReadOnly = true, Width = 120 }
+                });
+
+            //for(int i=1;i<=count;i++)
+            //{
+            //    dgvData.Columns.AddRange(new[] {
+            //        new DataGridViewTextBoxColumn() { Name = "colTime"+i.ToString(), HeaderText = "时间" + i.ToString(), DataPropertyName = "Time", ReadOnly = true, Width = 120 },
+            //        new DataGridViewTextBoxColumn() { Name = "colData"+i.ToString(), HeaderText = "战绩" + i.ToString(), DataPropertyName = "Data", ReadOnly = true, Width = 70 }
+            //    });
+            //}
         }
 
         /// <summary>
@@ -151,10 +166,15 @@ namespace 英雄联盟战绩查询
                 {
                     Data = new 战绩数据()
                     {
-                        Index = index,
-                        Name = row.Cells["colName"].Value.ToString(),
-                        Server = areas.First(a => a.AreaName == row.Cells["colServer"].Value.ToString()).AreaID,
-                        WebUrl = row.Cells["colWebUrl"].Value == null ? "" : row.Cells["colWebUrl"].Value.ToString()
+                        账号信息 = new GameAccount()
+                        {
+                            Index = index,
+                            Name = row.Cells["colName"].Value.ToString(),
+                            Server = areas.First(a => a.AreaName == row.Cells["colServer"].Value.ToString()).AreaID,
+                            WebUrl = row.Cells["colWebUrl"].Value == null ? "" : row.Cells["colWebUrl"].Value.ToString(),
+                            Beizhu = "",
+                            Duanwei = ""                            
+                        }                        
                     }
                 });
 
@@ -203,26 +223,26 @@ namespace 英雄联盟战绩查询
             }
             else
             {
-                DataGridViewRow row = dgvData.Rows[data.Index];
-                row.Cells["colName"].Value = data.Name;
-                row.Cells["colServer"].Value = areas.First(a => a.AreaID == data.Server).AreaName;
-                row.Cells["colWebUrl"].Value = data.WebUrl;                
+                DataGridViewRow row = dgvData.Rows[data.账号信息.Index.Value];
+                row.Cells["colName"].Value = data.账号信息.Name;
+                row.Cells["colServer"].Value = areas.First(a => a.AreaID == data.账号信息.Server).AreaName;
+                row.Cells["colWebUrl"].Value = data.账号信息.WebUrl;                
                 int 失败次数 = 0;
-                for (int i = 1; i <= data.Data.Count; i++)
+                for (int i = 1; i <= data.战绩.Count; i++)
                 {
                     var coltime = "colTime" + i.ToString();
                     var coldata = "colData" + i.ToString();
 
                     if (dgvData.Columns.Contains(coltime))
                     {
-                        row.Cells[coltime].Value = data.Data[i-1].时间;
-                        row.Cells[coldata].Value = data.Data[i-1].结果;
-                        if (data.Data[i-1].结果 == "失败" && i < 8) 失败次数++;
+                        row.Cells[coltime].Value = data.战绩[i - 1].Shijian;
+                        row.Cells[coldata].Value = data.战绩[i - 1].Jieguo;
+                        if (data.战绩[i - 1].Jieguo == "失败" && i < 8) 失败次数++;
                     }
                 }
                 if(失败次数 >= Lost)
                 {
-                    dgvData.Rows[data.Index].DefaultCellStyle.BackColor = Color.Red;
+                    dgvData.Rows[data.账号信息.Index.Value].DefaultCellStyle.BackColor = Color.Red;
                 }
             }
         }

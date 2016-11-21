@@ -103,7 +103,7 @@ namespace 英雄联盟战绩查询
         // 获取账号的qquin
         public delegate void ParameterizedThreadStart(object objID, object objName);   //ParameterizedThreadStart委托的声明
         private void button1_Click(object sender, EventArgs e)
-        {// 锦帝丶,Dreamy灬Bubles,9天虹诺德牛排杯
+        {// 锦帝丶,Dreamy灬Bubles, 
             // 获取Cookies
 
             string strAreaName = comboBox1.Text;

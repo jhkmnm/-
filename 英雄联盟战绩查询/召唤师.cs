@@ -12,17 +12,7 @@ namespace 英雄联盟战绩查询
     public class 召唤师
     {
         private WebBrowser browser;
-        public 战绩数据 Data { get; set; }
-
-        //public string Name { get; set; }
-
-        //public string Server { get; set; }
-
-        //public string WebUrl { get; set; }
-
-        //public bool IsUser { get; set; }
-
-        //public int Index { get; set; }
+        public 战绩数据 Data { get; set; }        
 
         public 召唤师()
         {
@@ -40,15 +30,15 @@ namespace 英雄联盟战绩查询
 
         public 战绩数据 查询战绩(int count)
         {            
-            Data.Data = Search(count);            
+            Data.战绩 = Search(count);
             return Data;
         }
 
-        private List<战绩> Search(int count)
+        private List<Zhanji> Search(int count)
         {
-            if (string.IsNullOrWhiteSpace(Data.WebUrl))
+            if (string.IsNullOrWhiteSpace(Data.账号信息.WebUrl))
             {
-                string url = string.Format("http://lol.te5.com/db/so.html?a={0}&k={1}", Data.Server, System.Web.HttpUtility.UrlEncode(Data.Name));
+                string url = string.Format("http://lol.te5.com/db/so.html?a={0}&k={1}", Data.账号信息.Server, System.Web.HttpUtility.UrlEncode(Data.账号信息.Name));
                 browser.Navigate(url);
                 while (browser.ReadyState != WebBrowserReadyState.Complete)
                 {
@@ -58,14 +48,14 @@ namespace 英雄联盟战绩查询
                 var table = browser.Document.GetElementById("matchlists");
                 if (table == null)
                 {
-                    return new List<战绩>();
+                    return new List<Zhanji>();
                 }
-                Data.WebUrl = browser.Url.ToString();
+                Data.账号信息.WebUrl = browser.Url.ToString();
                 return GetMatchlists("", count);
             }
             else
             {
-                return GetMatchlists(Data.WebUrl, count);
+                return GetMatchlists(Data.账号信息.WebUrl, count);
             }
             //var rows = table.GetElementsByTagName("tr");
             //var tds = rows.GetElementsByName("td");
@@ -73,7 +63,7 @@ namespace 英雄联盟战绩查询
             //var zhanji = tds[5].All[0].GetAttribute("href");
         }
 
-        private List<战绩> GetMatchlists(string url, int count)
+        private List<Zhanji> GetMatchlists(string url, int count)
         {
             if(!string.IsNullOrWhiteSpace(url))
             {
@@ -84,7 +74,7 @@ namespace 英雄联盟战绩查询
                 }
             }
             var table = browser.Document.GetElementById("matchlists");
-            List<战绩> data = new List<战绩>(); 
+            List<Zhanji> data = new List<Zhanji>(); 
             if (table != null)
             {                
                 var rows = table.GetElementsByTagName("tr");
@@ -96,7 +86,7 @@ namespace 英雄联盟战绩查询
                         //var model = rows[i].Children[1].OuterText;
                         var result = rows[i].Children[2].OuterText;
                         var time = rows[i].Children[3].OuterText;
-                        data.Add(new 战绩 { 结果 = result, 时间 = time });
+                        data.Add(new Zhanji { Jieguo = result, Shijian = time, GameID = "", Name = Data.账号信息.Name });
                     }
                 }
             }
@@ -107,21 +97,23 @@ namespace 英雄联盟战绩查询
 
     public class 战绩数据
     {
-        public string Name { get; set; }
+        //public string Name { get; set; }
 
-        public string Server { get; set; }
+        //public string Server { get; set; }
 
-        public List<战绩> Data { get; set; }
+        //public List<战绩> Data { get; set; }
 
-        public int Index { get; set; }
+        //public int Index { get; set; }
 
-        public string WebUrl { get; set; }        
+        //public string WebUrl { get; set; }
+        public GameAccount 账号信息 { get; set; }
+        public List<Zhanji> 战绩 { get; set; }
     }
 
-    public class 战绩
-    {
-        public string 结果 { get; set; }
+    //public class 战绩
+    //{
+    //    public string 结果 { get; set; }
 
-        public string 时间 { get; set; }
-    }
+    //    public string 时间 { get; set; }
+    //}
 }
