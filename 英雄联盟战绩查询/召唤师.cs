@@ -108,12 +108,22 @@ namespace 英雄联盟战绩查询
         //public string WebUrl { get; set; }
         public GameAccount 账号信息 { get; set; }
         public List<Zhanji> 战绩 { get; set; }
+
+        public double Shenlu
+        { 
+            get 
+            {
+                return 战绩.Select(a => a.Jieguo == "胜利").Count() / (战绩.Count * 1.0);
+            } 
+        }
+
+        public string Shijian
+        {
+            get 
+            {
+                var t = (DateTime.Now.AddDays(-3) - Convert.ToDateTime(账号信息.Time));
+                return string.Format("{0:00}:{1:00}", t.Hours, t.Minutes);                
+            }
+        }
     }
-
-    //public class 战绩
-    //{
-    //    public string 结果 { get; set; }
-
-    //    public string 时间 { get; set; }
-    //}
 }

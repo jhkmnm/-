@@ -84,7 +84,7 @@ namespace 英雄联盟战绩查询
                 new DataGridViewTextBoxColumn() { Name = "colSelected", HeaderText = "选择", DataPropertyName = "Selected", Width = 40 },
                 new DataGridViewTextBoxColumn() { Name = "colName", HeaderText = "游戏ID", DataPropertyName = "Name", ReadOnly = true, Width = 100 },
                 new DataGridViewTextBoxColumn() { Name = "colServer", HeaderText = "游戏大区", DataPropertyName = "Server", ReadOnly = true, Width = 100 },
-                new DataGridViewTextBoxColumn() { Name = "colShenLU", HeaderText = "当前胜率", DataPropertyName = "ShenLU", ReadOnly = true, Width = 100 },
+                new DataGridViewTextBoxColumn() { Name = "colShenLU", HeaderText = "当前胜率", DataPropertyName = "Shenlu", ReadOnly = true, Width = 100 },
                 new DataGridViewTextBoxColumn() { Name = "colDuanwei", HeaderText = "当前段位", DataPropertyName = "Duanwei", ReadOnly = true, Width = 100 },
                 new DataGridViewTextBoxColumn() { Name = "colWebUrl", HeaderText = "账号地址", DataPropertyName = "WebUrl", ReadOnly = true, Visible = false }
             });
@@ -97,7 +97,7 @@ namespace 英雄联盟战绩查询
             }
 
             dgvData.Columns.AddRange(new[] {                    
-                    new DataGridViewTextBoxColumn() { Name = "colTime", HeaderText = "时间计时", DataPropertyName = "Time", ReadOnly = true, Width = 120 },
+                    new DataGridViewTextBoxColumn() { Name = "colTime", HeaderText = "时间计时", DataPropertyName = "Shijian", ReadOnly = true, Width = 120 },
                     new DataGridViewTextBoxColumn() { Name = "colBeizhu", HeaderText = "备注", DataPropertyName = "Beizhu", ReadOnly = true, Width = 120 }
                 });
 
