@@ -12,7 +12,7 @@ namespace 英雄联盟战绩查询
     public class 召唤师
     {
         private WebBrowser browser;
-        public 战绩数据 Data { get; set; }        
+        public 战绩数据 Data { get; set; }
 
         public 召唤师()
         {
@@ -28,13 +28,15 @@ namespace 英雄联盟战绩查询
             vDocument.parentWindow.execScript("function alert(str){return true;} ", "javaScript");//弹出提示
         }
 
-        public 战绩数据 查询战绩(int count)
-        {            
-            Data.战绩 = Search(count);
-            return Data;
+        public void 查询战绩()
+        {
+            Data.账号信息.Time = DateTime.Now.ToString();
+            if (Data.战绩 == null)
+                Data.战绩 = new List<Zhanji>();
+            Search();
         }
 
-        private List<Zhanji> Search(int count)
+        private void Search()
         {
             if (string.IsNullOrWhiteSpace(Data.账号信息.WebUrl))
             {
@@ -45,17 +47,24 @@ namespace 英雄联盟战绩查询
                     Application.DoEvents();
                 }
 
+                var spans = browser.Document.GetElementsByTagName("span");
+                foreach(HtmlElement item in spans)
+                {
+                    if (item.GetAttribute("className") == "f16")
+                        Data.账号信息.Duanwei = item.OuterText;
+                }
+                
                 var table = browser.Document.GetElementById("matchlists");
                 if (table == null)
                 {
-                    return new List<Zhanji>();
+                    return;
                 }
                 Data.账号信息.WebUrl = browser.Url.ToString();
-                return GetMatchlists("", count);
+                GetMatchlists("");
             }
             else
             {
-                return GetMatchlists(Data.账号信息.WebUrl, count);
+                GetMatchlists(Data.账号信息.WebUrl);
             }
             //var rows = table.GetElementsByTagName("tr");
             //var tds = rows.GetElementsByName("td");
@@ -63,7 +72,7 @@ namespace 英雄联盟战绩查询
             //var zhanji = tds[5].All[0].GetAttribute("href");
         }
 
-        private List<Zhanji> GetMatchlists(string url, int count)
+        private void GetMatchlists(string url)
         {
             if(!string.IsNullOrWhiteSpace(url))
             {
@@ -74,24 +83,30 @@ namespace 英雄联盟战绩查询
                 }
             }
             var table = browser.Document.GetElementById("matchlists");
-            List<Zhanji> data = new List<Zhanji>(); 
+            //List<Zhanji> data = new List<Zhanji>(); 
             if (table != null)
             {                
                 var rows = table.GetElementsByTagName("tr");
                 if (rows.Count > 1)
                 {
-                    for (int i = 1; i < (count < rows.Count ? count : rows.Count); i++)
+                    for (int i = 1; i < rows.Count; i++)
                     {
                         //var heroname = rows[i].GetElementsByTagName("a")[0].OuterText;
                         //var model = rows[i].Children[1].OuterText;
                         var result = rows[i].Children[2].OuterText;
                         var time = rows[i].Children[3].OuterText;
-                        data.Add(new Zhanji { Jieguo = result, Shijian = time, GameID = "", Name = Data.账号信息.Name });
+                        if (Convert.ToDateTime(time) >= Convert.ToDateTime(Data.账号信息.Time))
+                        {
+                            var gameid = rows[i].Children[4].Children[0].GetAttribute("href");
+                            gameid = gameid == null ? "" : gameid.Substring(gameid.LastIndexOf("=") + 1);
+                            if (!Data.战绩.Exists(a => a.GameID == gameid) && !string.IsNullOrWhiteSpace(gameid))
+                            {
+                                Data.战绩.Insert(0, new Zhanji { GameID = gameid, Jieguo = result, Shijian = time, Name = Data.账号信息.Name });
+                            }
+                        }
                     }
                 }
             }
-
-            return data;
         }
     }
 
@@ -121,7 +136,7 @@ namespace 英雄联盟战绩查询
         {
             get 
             {
-                var t = (DateTime.Now.AddDays(-3) - Convert.ToDateTime(账号信息.Time));
+                var t = (DateTime.Now - Convert.ToDateTime(账号信息.Time));
                 return string.Format("{0:00}:{1:00}", t.Hours, t.Minutes);                
             }
         }

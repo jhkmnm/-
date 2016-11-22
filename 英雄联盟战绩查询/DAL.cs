@@ -32,7 +32,8 @@ namespace 英雄联盟战绩查询
             var v = GetAccountByName(data.Name);
             if(v == null)
                 return DB.Context.Insert<GameAccount>(data);
-            return 0;
+            else
+                return DB.Context.Update(data);
         }
 
         public Zhanji GetZhanjiByGameID(string gameID)
@@ -93,6 +94,12 @@ namespace 英雄联盟战绩查询
                     AddZhanji(zj);
                 }
             }
+        }
+
+        public void DelGameData(string name)
+        {
+            DB.Context.Delete<GameAccount>(a => a.Name == name);
+            DB.Context.Delete<Zhanji>(a => a.Name == name);
         }
     }
 }

@@ -49,6 +49,8 @@ namespace 英雄联盟战绩查询
             InitAredID();
             IniListView();
             //ReadSearchData();
+
+
         }
 
         private void ReadSearchData()
