@@ -1,4 +1,4 @@
-﻿using mshtml;
+﻿//using mshtml;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,16 +18,16 @@ namespace 英雄联盟战绩查询
         public 召唤师()
         {
             browser = new WebBrowser();
-            browser.DocumentCompleted += Browser_DocumentCompleted;
+            //browser.DocumentCompleted += Browser_DocumentCompleted;
             browser.ScriptErrorsSuppressed = true;
         }
 
-        private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-            IHTMLDocument2 vDocument = (IHTMLDocument2)browser.Document.DomDocument;
-            vDocument.parentWindow.execScript("function confirm(str){return true;} ", "javascript"); //弹出确认
-            vDocument.parentWindow.execScript("function alert(str){return true;} ", "javaScript");//弹出提示
-        }
+        //private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        //{
+        //    IHTMLDocument2 vDocument = (IHTMLDocument2)browser.Document.DomDocument;
+        //    vDocument.parentWindow.execScript("function confirm(str){return true;} ", "javascript"); //弹出确认
+        //    vDocument.parentWindow.execScript("function alert(str){return true;} ", "javaScript");//弹出提示
+        //}
 
         public void 查询战绩()
         {

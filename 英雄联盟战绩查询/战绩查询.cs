@@ -35,6 +35,7 @@ namespace 英雄联盟战绩查询
 
             txtCount.Text = GetAppConfig("Count");
             txtValer.Text = GetAppConfig("Interval");
+            chkIsPlay.Checked = GetAppConfig("Play") == "1" ? true : false;
             count = Convert.ToInt32(txtCount.Text);
             Lost = Convert.ToInt32(txtLost.Text);
 
@@ -186,21 +187,25 @@ namespace 英雄联盟战绩查询
         private void RefData()
         {
             召唤师 item;
-            //lock (thisLock)
-            //{
-            //    item = 召唤师队列.Dequeue();
-            //}
-            //if(item != null)
-            //{
-            //    var data = item.查询战绩(Convert.ToInt32(txtCount.Text));
-            //    RefDgvData(data);
-            //}
+            
             while (召唤师队列.Count > 0)
             {
                 item = 召唤师队列.Dequeue();
 
                 if (item != null)
                 {
+                    DataGridViewRow row = null;
+                    foreach (DataGridViewRow r in dgvData.Rows)
+                    {
+                        if (r.Cells["colName"].Value.ToString() == item.Data.账号信息.Name)
+                        {
+                            row = r;
+                            break;
+                        }
+                    }
+                    if (row != null)
+                        row.Selected = true;
+
                     item.查询战绩();
                     RefDgvData(item.Data);
                 }
@@ -213,51 +218,46 @@ namespace 英雄联盟战绩查询
         /// <param name="data"></param>
         private void RefDgvData(战绩数据 data)
         {
-            if(dgvData.InvokeRequired)
+            DataGridViewRow row = null;
+            foreach (DataGridViewRow r in dgvData.Rows)
             {
-                this.BeginInvoke(new UpdateControl(RefDgvData), new object[] { data });
-            }
-            else
-            {
-                DataGridViewRow row = null;
-                foreach (DataGridViewRow r in dgvData.Rows)
+                if (r.Cells["colName"].Value.ToString() == data.账号信息.Name)
                 {
-                    if (r.Cells["colName"].Value.ToString() == data.账号信息.Name)
-                    {
-                        row = r;
-                        break;
-                    }
-                }
-
-                if (row == null)
-                    return;
-
-                row.Cells["colSelected"].Value = false;
-                row.Cells["colName"].Value = data.账号信息.Name;
-                row.Cells["colServer"].Value = areas.First(a => a.AreaID == data.账号信息.Server).AreaName;
-                row.Cells["colShenLU"].Value = data.Shenlu.ToString();
-                row.Cells["colDuanwei"].Value = data.账号信息.Duanwei;
-                row.Cells["colDuanwei"].Value = data.账号信息.Duanwei;
-                row.Cells["colWebUrl"].Value = data.账号信息.WebUrl;
-                row.Cells["colTime"].Value = data.账号信息.Time;
-                row.Cells["colShijian"].Value = data.Shijian;
-                row.Cells["colBeizhu"].Value = data.账号信息.Beizhu;
-
-                int 失败次数 = 0;
-                for (int i = 1; i <= (count < data.战绩.Count ? count : data.战绩.Count) ; i++)
-                {
-                    var coldata = "colData" + i.ToString();
-                    if (dgvData.Columns.Contains(coldata))
-                    {
-                        row.Cells[coldata].Value = string.Format("{0}{2}{1}", data.战绩[i - 1].Shijian, data.战绩[i - 1].Jieguo, Environment.NewLine);
-                        if (data.战绩[i - 1].Jieguo == "失败" && i <= 8) 失败次数++;
-                    }
-                }
-                if (失败次数 >= Lost)
-                {
-                    row.DefaultCellStyle.BackColor = Color.Red;
+                    row = r;
+                    break;
                 }
             }
+
+            if (row == null)
+                return;
+
+            row.Cells["colSelected"].Value = false;
+            row.Cells["colName"].Value = data.账号信息.Name;
+            row.Cells["colServer"].Value = areas.First(a => a.AreaID == data.账号信息.Server).AreaName;
+            row.Cells["colShenLU"].Value = data.Shenlu.ToString();
+            row.Cells["colDuanwei"].Value = data.账号信息.Duanwei;
+            row.Cells["colDuanwei"].Value = data.账号信息.Duanwei;
+            row.Cells["colWebUrl"].Value = data.账号信息.WebUrl;
+            row.Cells["colTime"].Value = data.账号信息.Time;
+            row.Cells["colShijian"].Value = data.Shijian;
+            row.Cells["colBeizhu"].Value = data.账号信息.Beizhu;
+
+            int 失败次数 = 0;
+            for (int i = 1; i <= (count < data.战绩.Count ? count : data.战绩.Count); i++)
+            {
+                var coldata = "colData" + i.ToString();
+                if (dgvData.Columns.Contains(coldata))
+                {
+                    row.Cells[coldata].Value = string.Format("{0}{2}{1}", data.战绩[i - 1].Shijian, data.战绩[i - 1].Jieguo, Environment.NewLine);
+                    if (data.战绩[i - 1].Jieguo == "失败" && i <= 8) 失败次数++;
+                }
+            }
+            if (失败次数 >= Lost)
+            {
+                row.DefaultCellStyle.BackColor = Color.Red;
+                player.Play();
+            }
+            row.Selected = false;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -363,6 +363,7 @@ namespace 英雄联盟战绩查询
             SetValue("Count", string.IsNullOrWhiteSpace(txtCount.Text) ? "8" : txtCount.Text);
             SetValue("Interval", string.IsNullOrWhiteSpace(txtValer.Text) ? "10" : txtValer.Text);
             SetValue("Lost", string.IsNullOrWhiteSpace(txtLost.Text) ? "3" : txtLost.Text);
+            SetValue("Play", chkIsPlay.Checked ? "1" : "0");
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -381,6 +382,7 @@ namespace 英雄联盟战绩查询
                 label6.Text = string.Format("第{0}次查询中......", SearchCount++);
                 GetData();
                 timer1.Enabled = true;
+                SaveData();
             }
             else
             {
@@ -435,6 +437,11 @@ namespace 英雄联盟战绩查询
                     }
                 });
             }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            SaveData();
         }
     }
 
