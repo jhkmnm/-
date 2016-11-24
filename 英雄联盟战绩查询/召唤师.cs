@@ -13,6 +13,7 @@ namespace 英雄联盟战绩查询
     {
         private WebBrowser browser;
         public 战绩数据 Data { get; set; }
+        private bool isInsert = false;
 
         public 召唤师()
         {
@@ -30,9 +31,11 @@ namespace 英雄联盟战绩查询
 
         public void 查询战绩()
         {
-            Data.账号信息.Time = DateTime.Now.ToString();
+            isInsert = !(Data.战绩 == null || Data.战绩.Count == 0);
             if (Data.战绩 == null)
+            {
                 Data.战绩 = new List<Zhanji>();
+            }
             Search();
         }
 
@@ -66,10 +69,6 @@ namespace 英雄联盟战绩查询
             {
                 GetMatchlists(Data.账号信息.WebUrl);
             }
-            //var rows = table.GetElementsByTagName("tr");
-            //var tds = rows.GetElementsByName("td");
-            //var duanwei = tds[3].OuterText;
-            //var zhanji = tds[5].All[0].GetAttribute("href");
         }
 
         private void GetMatchlists(string url)
@@ -82,8 +81,7 @@ namespace 英雄联盟战绩查询
                     Application.DoEvents();
                 }
             }
-            var table = browser.Document.GetElementById("matchlists");
-            //List<Zhanji> data = new List<Zhanji>(); 
+            var table = browser.Document.GetElementById("matchlists");            
             if (table != null)
             {                
                 var rows = table.GetElementsByTagName("tr");
@@ -101,7 +99,12 @@ namespace 英雄联盟战绩查询
                             gameid = gameid == null ? "" : gameid.Substring(gameid.LastIndexOf("=") + 1);
                             if (!Data.战绩.Exists(a => a.GameID == gameid) && !string.IsNullOrWhiteSpace(gameid))
                             {
-                                Data.战绩.Insert(0, new Zhanji { GameID = gameid, Jieguo = result, Shijian = time, Name = Data.账号信息.Name });
+                                var z = new Zhanji { GameID = gameid, Jieguo = result, Shijian = time, Name = Data.账号信息.Name };
+
+                                if(isInsert)
+                                    Data.战绩.Insert(0, z);
+                                else
+                                    Data.战绩.Add(z);
                             }
                         }
                     }
@@ -112,23 +115,16 @@ namespace 英雄联盟战绩查询
 
     public class 战绩数据
     {
-        //public string Name { get; set; }
-
-        //public string Server { get; set; }
-
-        //public List<战绩> Data { get; set; }
-
-        //public int Index { get; set; }
-
-        //public string WebUrl { get; set; }
         public GameAccount 账号信息 { get; set; }
         public List<Zhanji> 战绩 { get; set; }
 
-        public double Shenlu
+        public string Shenlu
         { 
             get 
             {
-                return 战绩.Select(a => a.Jieguo == "胜利").Count() / (战绩.Count * 1.0);
+                var v = 战绩.Where(a => a.Jieguo == "胜利").Count();
+
+                return string.Format("{0:0.00%}", (v / (战绩.Count * 1.0)));
             } 
         }
 
@@ -137,7 +133,7 @@ namespace 英雄联盟战绩查询
             get 
             {
                 var t = (DateTime.Now - Convert.ToDateTime(账号信息.Time));
-                return string.Format("{0:00}:{1:00}", t.Hours, t.Minutes);                
+                return string.Format("{0:00}:{1:00}", t.Hours, t.Minutes);
             }
         }
     }
