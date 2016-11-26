@@ -32,27 +32,31 @@ namespace 英雄联盟战绩查询
 
         private void Search()
         {
-            if (string.IsNullOrWhiteSpace(Data.账号信息.WebUrl))
+            try
             {
-                string url = string.Format("http://lol.te5.com/db/so.html?a={0}&k={1}", Data.账号信息.Server, System.Web.HttpUtility.UrlEncode(Data.账号信息.Name));
-
-                document = web.Load(url);
-
-                var span = document.DocumentNode.SelectSingleNode("/html[1]/body[1]/div[2]/ul[1]/li[2]/strong[1]");
-                if (span != null)
+                if (string.IsNullOrWhiteSpace(Data.账号信息.WebUrl))
                 {
-                    if (span.InnerText == Data.账号信息.Name)
-                    {
-                        Data.账号信息.WebUrl = web.ResponseUri.AbsoluteUri;
+                    string url = string.Format("http://lol.te5.com/db/so.html?a={0}&k={1}", Data.账号信息.Server, System.Web.HttpUtility.UrlEncode(Data.账号信息.Name));
 
-                        GetMatchlists("");
+                    document = web.Load(url);
+
+                    var span = document.DocumentNode.SelectSingleNode("/html[1]/body[1]/div[2]/ul[1]/li[2]/strong[1]");
+                    if (span != null)
+                    {
+                        if (span.InnerText == Data.账号信息.Name)
+                        {
+                            Data.账号信息.WebUrl = web.ResponseUri.AbsoluteUri;
+
+                            GetMatchlists("");
+                        }
                     }
                 }
+                else
+                {
+                    GetMatchlists(Data.账号信息.WebUrl);
+                }
             }
-            else
-            {
-                GetMatchlists(Data.账号信息.WebUrl);
-            }
+            catch { }
         }
 
         private void GetMatchlists(string url)
