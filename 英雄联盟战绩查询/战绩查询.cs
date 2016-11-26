@@ -13,15 +13,11 @@ namespace 英雄联盟战绩查询
 {
     public partial class 战绩查询 : Form
     {
-        private Queue<召唤师> 召唤师队列 = new Queue<召唤师>();
-        private string filename = System.AppDomain.CurrentDomain.BaseDirectory + "data.txt";
-        private static Object thisLock = new Object();
-        public delegate void UpdateControl(战绩数据 data);
+        private Queue<召唤师> 召唤师队列 = new Queue<召唤师>();        
         List<Area> areas = new List<Area>();
         SoundPlayer player = new SoundPlayer();
         private List<string> usernames = new List<string>();
-        int count = 8;
-        DateTime begintime;
+        int count = 8;        
         int Lost = 3;
         DAL dal = new DAL();
         List<战绩数据> DataList = new List<战绩数据>();
@@ -178,7 +174,7 @@ namespace 英雄联盟战绩查询
                 }
             });
 
-            RefData();
+            new System.Threading.Thread(RefData).Start();            
         }
 
         /// <summary>
@@ -204,12 +200,18 @@ namespace 英雄联盟战绩查询
                         }
                     }
                     if (row != null)
-                        row.Selected = true;
+                    {
+                        this.BeginInvoke(new Action(() =>{
+                            row.Selected = true;
+                            label6.Text = string.Format("第{0}次查询中......{1}", SearchCount, row.Index);
+                        }));                        
+                    }                        
 
                     item.查询战绩();
-                    RefDgvData(item.Data);
+                    this.Invoke(new Action<战绩数据>(RefDgvData), new object[] { item.Data });
                 }
             }
+            SearchCount++;
         }
 
         /// <summary>
@@ -224,6 +226,7 @@ namespace 英雄联盟战绩查询
                 if (r.Cells["colName"].Value.ToString() == data.账号信息.Name)
                 {
                     row = r;
+                    row.Selected = true;
                     break;
                 }
             }
@@ -235,7 +238,6 @@ namespace 英雄联盟战绩查询
             row.Cells["colName"].Value = data.账号信息.Name;
             row.Cells["colServer"].Value = areas.First(a => a.AreaID == data.账号信息.Server).AreaName;
             row.Cells["colShenLU"].Value = data.Shenlu.ToString();
-            row.Cells["colDuanwei"].Value = data.账号信息.Duanwei;
             row.Cells["colDuanwei"].Value = data.账号信息.Duanwei;
             row.Cells["colWebUrl"].Value = data.账号信息.WebUrl;
             row.Cells["colTime"].Value = data.账号信息.Time;
@@ -300,7 +302,7 @@ namespace 英雄联盟战绩查询
                 return;
             }
 
-            button2.Enabled = false;            
+            button2.Enabled = false;
             timer1.Enabled = true;
         }
 
@@ -378,8 +380,7 @@ namespace 英雄联盟战绩查询
             });
 
             if (v != null && v.Count() > 0)
-            {
-                label6.Text = string.Format("第{0}次查询中......", SearchCount++);
+            {                
                 GetData();
                 timer1.Enabled = true;
                 SaveData();

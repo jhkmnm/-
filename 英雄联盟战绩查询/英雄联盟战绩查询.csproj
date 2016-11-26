@@ -68,10 +68,9 @@
     <Compile Include="DAL.cs" />
     <Compile Include="DB.cs" />
     <Compile Include="Model.cs" />
-    <Compile Include="召唤师.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="召唤师2.cs" />
+    <Compile Include="召唤师.cs" />
     <Compile Include="战绩查询.cs">
       <SubType>Form</SubType>
     </Compile>
