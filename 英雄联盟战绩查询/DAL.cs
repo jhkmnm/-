@@ -36,12 +36,12 @@ namespace 英雄联盟战绩查询
                 return DB.Context.Update(data);
         }
 
-        public Zhanji GetZhanjiByGameID(string gameID)
+        public Zhanji GetZhanjiByTime(string time)
         {
             var where = new Where<Zhanji>();
-            if (!string.IsNullOrWhiteSpace(gameID))
+            if (!string.IsNullOrWhiteSpace(time))
             {
-                where.And(d => d.GameID == gameID);
+                where.And(d => d.Shijian == time);
             }
             var fs = DB.Context.From<Zhanji>()
                 .Where(where);
@@ -63,7 +63,7 @@ namespace 英雄联盟战绩查询
 
         public int AddZhanji(Zhanji data)
         {
-            var v = GetZhanjiByGameID(data.GameID);
+            var v = GetZhanjiByTime(data.Shijian);
             if (v == null)
                 return DB.Context.Insert<Zhanji>(data);
             return 0;

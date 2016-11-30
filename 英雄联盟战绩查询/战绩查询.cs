@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Media;
+using System.Threading;
 
 namespace 英雄联盟战绩查询
 {
@@ -21,7 +22,7 @@ namespace 英雄联盟战绩查询
         int Lost = 3;
         DAL dal = new DAL();
         List<战绩数据> DataList = new List<战绩数据>();
-        int SearchCount = 1;
+        int SearchCount = 1;        
 
         public 战绩查询()
         {
@@ -173,8 +174,8 @@ namespace 英雄联盟战绩查询
                     });
                 }
             });
-
-            new System.Threading.Thread(RefData).Start();            
+            
+            new System.Threading.Thread(RefData).Start();
         }
 
         /// <summary>
@@ -182,8 +183,7 @@ namespace 英雄联盟战绩查询
         /// </summary>
         private void RefData()
         {
-            召唤师 item;
-            
+            召唤师 item;            
             while (召唤师队列.Count > 0)
             {
                 item = 召唤师队列.Dequeue();
@@ -204,8 +204,8 @@ namespace 英雄联盟战绩查询
                         this.BeginInvoke(new Action(() =>{
                             row.Selected = true;
                             label6.Text = string.Format("第{0}次查询中......{1}", SearchCount, row.Index);
-                        }));                        
-                    }                        
+                        }));
+                    }
 
                     item.查询战绩();
                     this.Invoke(new Action<战绩数据>(RefDgvData), new object[] { item.Data });
@@ -365,7 +365,7 @@ namespace 英雄联盟战绩查询
             SetValue("Count", string.IsNullOrWhiteSpace(txtCount.Text) ? "8" : txtCount.Text);
             SetValue("Interval", string.IsNullOrWhiteSpace(txtValer.Text) ? "10" : txtValer.Text);
             SetValue("Lost", string.IsNullOrWhiteSpace(txtLost.Text) ? "3" : txtLost.Text);
-            SetValue("Play", chkIsPlay.Checked ? "1" : "0");
+            SetValue("Play", chkIsPlay.Checked ? "1" : "0");            
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -380,7 +380,7 @@ namespace 英雄联盟战绩查询
             });
 
             if (v != null && v.Count() > 0)
-            {                
+            {
                 GetData();
                 timer1.Enabled = true;
                 SaveData();

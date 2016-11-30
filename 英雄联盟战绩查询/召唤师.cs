@@ -45,16 +45,13 @@ namespace 英雄联盟战绩查询
                     {
                         if (span.InnerText == Data.账号信息.Name)
                         {
-                            Data.账号信息.WebUrl = web.ResponseUri.AbsoluteUri;
-
-                            GetMatchlists("");
+                            var battleLink = document.DocumentNode.SelectSingleNode("//a[starts-with(@href, '/db/battle/')]");
+                            Data.账号信息.WebUrl = "http://" + web.ResponseUri.Authority + battleLink.Attributes["href"].Value;
                         }
                     }
                 }
-                else
-                {
-                    GetMatchlists(Data.账号信息.WebUrl);
-                }
+
+                GetMatchlists(Data.账号信息.WebUrl);
             }
             catch { }
         }
@@ -70,29 +67,39 @@ namespace 英雄联盟战绩查询
             if (span != null && !string.IsNullOrWhiteSpace(span.InnerText))
                 Data.账号信息.Duanwei = span.InnerText.Replace("&nbsp;", " ");
 
-            HtmlNodeCollection trs = document.DocumentNode.SelectNodes("//*[@id='matchlists']//tbody//tr");
-            if (trs != null)
+            HtmlNodeCollection ul = document.DocumentNode.SelectNodes("//ul[@class='clearfix']");
+            if (ul != null)
             {
-                foreach(HtmlNode tr in trs)
-                {
-                    var tds = tr.ChildNodes.Where(w => w.Name == "td").ToList();
+                foreach(HtmlNode li in ul[0].ChildNodes.Where(w => w.Name == "li"))
+                {                    
+                    var links = li.Elements("a").ToList();
+
+                    var time = links[2].InnerText;
+                    var result = links[3].InnerText;
                     
-                    var result = tds[2].InnerText;
-                    var time = tds[3].InnerText;
                     if (Convert.ToDateTime(time) >= Convert.ToDateTime(Data.账号信息.Time))
                     {
-                        var href = tds[4].Element("a").Attributes["href"].Value;
-
-                        var gameid = href == null ? "" : href.Substring(href.LastIndexOf("=") + 1);
-                        if (!Data.战绩.Exists(a => a.GameID == gameid) && !string.IsNullOrWhiteSpace(gameid))
+                        if(!Data.战绩.Exists(a => a.Shijian == time))
                         {
-                            var z = new Zhanji { GameID = gameid, Jieguo = result, Shijian = time, Name = Data.账号信息.Name };
+                            var z = new Zhanji { Jieguo = result, Shijian = time, Name = Data.账号信息.Name };
 
                             if (isInsert)
                                 Data.战绩.Insert(0, z);
                             else
                                 Data.战绩.Add(z);
                         }
+                        //var href = tds[4].Element("a").Attributes["href"].Value;
+
+                        //var gameid = href == null ? "" : href.Substring(href.LastIndexOf("=") + 1);
+                        //if (!Data.战绩.Exists(a => a.GameID == gameid) && !string.IsNullOrWhiteSpace(gameid))
+                        //{
+                        //    var z = new Zhanji { GameID = gameid, Jieguo = result, Shijian = time, Name = Data.账号信息.Name };
+
+                        //    if (isInsert)
+                        //        Data.战绩.Insert(0, z);
+                        //    else
+                        //        Data.战绩.Add(z);
+                        //}
                     }
                 }                
             }
